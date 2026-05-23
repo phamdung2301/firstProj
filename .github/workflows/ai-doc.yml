@@ -5,7 +5,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # Dòng này ép GitHub dùng Node.js 24 ngay lập tức, hết lỗi cảnh báo
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
@@ -22,24 +21,25 @@ jobs:
 
       - name: Run AI Script
         env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          # PHẢI KHỚP VỚI TÊN TRONG GITHUB SECRETS CỦA CẬU
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           python -c "
           import os, sys
           from google import genai
           try:
-              client = genai.Client(api_key=os.environ['GOOGLE_API_KEY'])
-              # Lấy danh sách file nhẹ nhàng
-              content = 'Cấu trúc dự án: ' + os.popen('find . -maxdepth 2 -not -path \"*/.*\"').read()
+              # Khởi tạo với biến môi trường mới
+              client = genai.Client(api_key=os.environ['GEMINI_API_KEY'])
+              content = 'Project Structure: ' + os.popen('find . -maxdepth 2 -not -path \"*/.*\"').read()
           
               response = client.models.generate_content(
-                  model='gemini-2.5-flash-lite',
-                  contents='Viết README chuyên nghiệp cho: ' + content
+                  model='gemini-2.0-flash', 
+                  contents='Write a professional README.md for this project structure: ' + content
               )
               with open('README.md', 'w', encoding='utf-8') as f:
                   f.write(response.text)
           except Exception as e:
-              print(f'Lỗi thực thi: {e}')
+              print(f'Lỗi chi tiết: {e}')
               sys.exit(1)
           "
 
