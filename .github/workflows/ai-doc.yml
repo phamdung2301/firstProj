@@ -1,7 +1,6 @@
 name: Generate AI Readme
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch: # Chỉ chạy khi bạn bấm nút trên web, không tự chạy mỗi khi push
 
 jobs:
   build:
@@ -24,21 +23,14 @@ jobs:
           
           client = genai.Client(api_key=os.environ['GOOGLE_API_KEY'])
           
-          # Đọc cấu trúc dự án
-          content = 'Cấu trúc dự án này: ' + os.popen('find . -maxdepth 2 -not -path \"*/.*\"').read()
+          # Chỉ lấy danh sách file, không đọc nội dung code để tiết kiệm quota
+          content = 'Cấu trúc dự án: ' + os.popen('find . -maxdepth 2 -not -path \"*/.*\"').read()
           
-          # Dùng model 'gemini-2.0-flash' - model mới nhất hiện nay
-          try:
-              response = client.models.generate_content(
-                  model='gemini-2.0-flash',
-                  contents='Hãy viết file README.md chuyên nghiệp cho dự án có cấu trúc sau: ' + content
-              )
-          except Exception as e:
-              # Nếu vẫn lỗi, in ra danh sách model để debug
-              print('Lỗi model, thử lại với danh sách model khả dụng:')
-              for m in client.models.list():
-                  print(m.name)
-              raise e
+          # Sử dụng model 'gemini-2.5-flash-lite' cực nhẹ và tiết kiệm quota
+          response = client.models.generate_content(
+              model='gemini-2.5-flash-lite',
+              contents='Viết file README.md chuyên nghiệp cho dự án này: ' + content
+          )
           
           with open('README.md', 'w', encoding='utf-8') as f:
               f.write(response.text)
