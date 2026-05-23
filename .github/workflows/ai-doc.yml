@@ -1,6 +1,6 @@
 name: Generate AI Readme
 on:
-  workflow_dispatch: # Chỉ chạy khi bạn bấm nút trên web, không tự chạy mỗi khi push
+  workflow_dispatch: # Chỉ chạy khi bấm nút
 
 jobs:
   build:
@@ -20,18 +20,13 @@ jobs:
           python -c "
           import os
           from google import genai
-          
           client = genai.Client(api_key=os.environ['GOOGLE_API_KEY'])
-          
-          # Chỉ lấy danh sách file, không đọc nội dung code để tiết kiệm quota
-          content = 'Cấu trúc dự án: ' + os.popen('find . -maxdepth 2 -not -path \"*/.*\"').read()
-          
-          # Sử dụng model 'gemini-2.5-flash-lite' cực nhẹ và tiết kiệm quota
+          # Chỉ liệt kê các file chính, bỏ qua thư mục rác .git, .idea, .mvn
+          content = 'Cấu trúc dự án: ' + os.popen('find . -maxdepth 3 -not -path \"*/.*\"').read()
           response = client.models.generate_content(
               model='gemini-2.5-flash-lite',
-              contents='Viết file README.md chuyên nghiệp cho dự án này: ' + content
+              contents='Hãy viết file README.md chuyên nghiệp, định dạng Markdown cho dự án Java này. Chỉ cần tổng quan, công nghệ và cấu trúc chính: ' + content
           )
-          
           with open('README.md', 'w', encoding='utf-8') as f:
               f.write(response.text)
           "
