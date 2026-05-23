@@ -11,24 +11,28 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11' # Nâng cấp lên 3.11 theo cảnh báo của Google
-      - name: Install AI lib
-        run: pip install -U google-generativeai
+          python-version: '3.11'
+      - name: Install New AI lib
+        run: pip install google-genai
       - name: Run AI Script
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
           python -c "
-          import os, google.generativeai as genai
-          genai.configure(api_key=os.environ['GOOGLE_API_KEY'])
-          # Đổi sang model 'gemini-1.5-flash-latest' để đảm bảo luôn trỏ vào bản ổn định nhất
-          model = genai.GenerativeModel('gemini-1.5-flash-latest')
+          import os
+          from google import genai
           
-          # Lấy danh sách file để AI hiểu cấu trúc
+          # Khởi tạo client mới
+          client = genai.Client(api_key=os.environ['GOOGLE_API_KEY'])
+          
+          # Đọc cấu trúc dự án
           content = 'Cấu trúc dự án này: ' + os.popen('find . -maxdepth 2 -not -path \"*/.*\"').read()
           
-          prompt = 'Hãy viết file README.md chuyên nghiệp, định dạng Markdown dựa trên cấu trúc dự án này: ' + content
-          response = model.generate_content(prompt)
+          # Gọi model ổn định nhất hiện tại
+          response = client.models.generate_content(
+              model='gemini-1.5-flash',
+              contents='Hãy viết file README.md chuyên nghiệp cho dự án có cấu trúc sau: ' + content
+          )
           
           with open('README.md', 'w', encoding='utf-8') as f:
               f.write(response.text)
