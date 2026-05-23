@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/base-layout :: layout(~{:: #club-list-content})}">
+<head></head>
+<body>
+<div id="club-list-content">
+
+    <style>
+        .club-img { height: 200px; object-fit: cover; }
+        .club-card { transition: transform 0.2s ease, box-shadow 0.2s ease; border-radius: 1rem; }
+        .club-card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12) !important; }
+        .stat-card { border-radius: 1rem; border: none; }
+        .empty-state { padding: 4rem 2rem; text-align: center; background: #fff; border-radius: 1rem; border: 1px dashed #cbd5e1; }
+    </style>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <form th:action="@{/clubs/search}" class="form-check-inline my-2 my-lg-0 mb-3">
+                <input name="query" class="form-control me-sm-2 mb-5" type="search" placeholder="Search running clubs" aria-label="Search" >
+            </form>
+        </div>
+        <div>
+            <h1 class="h2 fw-bold text-slate-800 mb-1">
+                <i class="fa-solid fa-users text-indigo-600 me-2"></i>Quản lý Câu lạc bộ
+            </h1>
+            <p class="text-muted mb-0">Danh sách hội nhóm đang hoạt động</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{/clubs/trash}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="fa-solid fa-trash-can me-1"></i> Thùng rác
+            </a>
+            <a th:href="@{/clubs/new}" class="btn btn-primary rounded-pill px-4">
+                <i class="fa-solid fa-plus me-1"></i> Thêm CLB
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i>Thao tác thành công!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card stat-card bg-indigo-600 text-white shadow-sm">
+                <div class="card-body py-3">
+                    <div class="small opacity-75">Tổng CLB</div>
+                    <div class="fs-3 fw-bold" th:text="${clubs != null ? #lists.size(clubs) : 0}">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card stat-card bg-emerald-600 text-white shadow-sm">
+                <div class="card-body py-3">
+                    <div class="small opacity-75">Trạng thái</div>
+                    <div class="fs-6 fw-semibold">Đang hiển thị</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${clubs != null and !#lists.isEmpty(clubs)}" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+        <div class="col" th:each="club : ${clubs}">
+            <div class="card h-100 shadow-sm club-card border-0 overflow-hidden">
+                <div th:if="${club.photoUrl != null and !#strings.isEmpty(club.photoUrl)}" style="height:200px;overflow:hidden;">
+                    <img th:src="${club.photoUrl}" class="w-100 club-img" alt="Club"
+                         onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600'">
+                </div>
+                <div th:unless="${club.photoUrl != null and !#strings.isEmpty(club.photoUrl)}"
+                     class="bg-slate-200 d-flex align-items-center justify-content-center" style="height:200px;">
+                    <i class="fa-solid fa-image fa-3x text-slate-400"></i>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title fw-bold mb-0" th:text="${club.title}">Tên CLB</h5>
+                        <span class="badge text-bg-light">#<span th:text="${club.id}">1</span></span>
+                    </div>
+                    <p class="text-muted small mb-2">
+                        <i class="fa-regular fa-calendar me-1"></i>
+                        <span th:if="${club.createdOn != null}" th:text="${#temporals.format(club.createdOn, 'dd/MM/yyyy HH:mm')}">—</span>
+                        <span th:unless="${club.createdOn != null}">Chưa có ngày tạo</span>
+                    </p>
+                    <p class="card-text text-muted flex-grow-1" th:text="${#strings.abbreviate(club.content, 90)}">Mô tả...</p>
+                </div>
+                <div class="card-footer bg-white border-0 pb-3 px-3">
+                    <div class="d-grid gap-2 d-sm-flex">
+                        <a th:href="@{/clubs/{clubId}(clubId=${club.id})}" class="btn btn-sm btn-outline-info flex-fill rounded-pill">
+                            <i class="fa-solid fa-eye me-1"></i>Xem
+                        </a>
+                        <a th:href="@{/clubs/{clubId}/events(clubId=${club.id})}" class="btn btn-sm btn-outline-success flex-fill rounded-pill">
+                            <i class="fa-solid fa-calendar-days me-1"></i>Sự kiện
+                        </a>
+                        <a th:href="@{/clubs/{clubId}/edit(clubId=${club.id})}" class="btn btn-sm btn-outline-primary flex-fill rounded-pill">
+                            <i class="fa-solid fa-pen me-1"></i>Sửa
+                        </a>
+                        <form th:action="@{/clubs/delete/{clubId}(clubId=${club.id})}" method="post" class="flex-fill m-0">
+                            <button type="submit" class="btn btn-sm btn-outline-danger w-100 rounded-pill"
+                                    onclick="return confirm('Xóa câu lạc bộ này?');">
+                                <i class="fa-solid fa-trash me-1"></i>Xóa
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${clubs == null or #lists.isEmpty(clubs)}" class="empty-state">
+        <i class="fa-regular fa-folder-open fa-4x text-slate-300 mb-3"></i>
+        <h4 class="text-slate-600 fw-bold">Chưa có câu lạc bộ nào</h4>
+        <p class="text-muted">Bắt đầu bằng cách tạo CLB đầu tiên của bạn.</p>
+        <a th:href="@{/clubs/new}" class="btn btn-primary rounded-pill px-4 mt-2">
+            <i class="fa-solid fa-plus me-1"></i>Tạo CLB
+        </a>
+    </div>
+
+</div>
+</body>
+</html>

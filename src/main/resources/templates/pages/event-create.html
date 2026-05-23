@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/base-layout :: layout(~{:: #event-create-content})}">
+<head></head>
+<body>
+<div id="event-create-content">
+
+    <style>
+        .form-card { border: none; border-radius: 1.25rem; overflow: hidden; box-shadow: 0 10px 30px rgba(15,23,42,0.08); }
+        .form-header { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; padding: 1.75rem; }
+    </style>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card form-card">
+                <div class="form-header">
+                    <h2 class="h4 fw-bold mb-1"><i class="fa-solid fa-plus-circle me-2"></i>Thêm sự kiện mới</h2>
+                    <p class="mb-0 opacity-75 small">
+                        Câu lạc bộ: <span th:text="${club.title}">CLB</span>
+                    </p>
+                </div>
+                <div class="card-body p-4 p-lg-5">
+                    <form method="post" th:action="@{/clubs/{clubId}/events(clubId=${club.id})}" th:object="${event}">
+                        <div class="mb-3">
+                            <label for="name" class="form-label fw-semibold">Tên sự kiện <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control rounded-3" id="name" th:field="*{name}"
+                                   placeholder="VD: Giải chạy mùa hè">
+                            <p th:if="${#fields.hasErrors('name')}" class="text-danger small mt-1" th:errors="*{name}"></p>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="startTime" class="form-label fw-semibold">Thời gian bắt đầu</label>
+                                <input type="datetime-local" class="form-control rounded-3" id="startTime" th:field="*{startTime}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="endTime" class="form-label fw-semibold">Thời gian kết thúc</label>
+                                <input type="datetime-local" class="form-control rounded-3" id="endTime" th:field="*{endTime}">
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/clubs/{clubId}/events(clubId=${club.id})}" class="btn btn-outline-secondary rounded-pill px-4">
+                                <i class="fa-solid fa-arrow-left me-1"></i>Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                <i class="fa-solid fa-floppy-disk me-1"></i>Tạo sự kiện
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

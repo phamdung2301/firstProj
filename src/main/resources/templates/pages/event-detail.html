@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/base-layout :: layout(~{:: #event-detail-content})}">
+<head>
+    <title th:text="${pageTitle}">Chi tiết sự kiện</title>
+</head>
+<body>
+<div id="event-detail-content">
+    <style>
+        .event-detail-card {
+            border-radius: 1rem;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            background: #fff;
+        }
+        .back-btn {
+            margin-bottom: 1rem;
+        }
+        .event-info {
+            margin-top: 1rem;
+        }
+        .event-label {
+            font-weight: 600;
+            color: #6c757d;
+            margin-right: 0.5rem;
+        }
+    </style>
+
+    <div class="mb-3 back-btn">
+        <a th:href="@{/clubs/{clubId}/events(clubId=${club.id})}" class="btn btn-outline-secondary btn-sm rounded-pill">
+            <i class="fa-solid fa-arrow-left me-1"></i>Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="card event-detail-card">
+        <div class="card-body">
+            <h1 class="h3 fw-bold text-slate-800 mb-4" th:text="${event.name}">Tên sự kiện</h1>
+
+            <div class="event-info fs-5">
+                <p>
+                    <span class="event-label">Thuộc CLB:</span>
+                    <span class="fw-semibold text-indigo-600" th:text="${club.title}">Tên CLB</span>
+                </p>
+                <hr>
+                <p>
+                    <span class="event-label"><i class="fa-regular fa-clock me-1"></i>Thời gian bắt đầu:</span>
+                    <span th:text="${event.startTime != null ? #temporals.format(event.startTime, 'dd/MM/yyyy HH:mm') : '—'}">—</span>
+                </p>
+                <p>
+                    <span class="event-label"><i class="fa-regular fa-hourglass-half me-1"></i>Thời gian kết thúc:</span>
+                    <span th:text="${event.endTime != null ? #temporals.format(event.endTime, 'dd/MM/yyyy HH:mm') : '—'}">—</span>
+                </p>
+                <p>
+                    <span class="event-label"><i class="fa-regular fa-calendar me-1"></i>Ngày tạo:</span>
+                    <span th:text="${event.createdOn != null ? #temporals.format(event.createdOn, 'dd/MM/yyyy HH:mm') : '—'}">—</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

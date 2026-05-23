@@ -1,0 +1,32 @@
+<nav th:fragment="navbar-fragment" xmlns:th="http://www.thymeleaf.org"
+     class="bg-slate-900 text-white shadow-md fixed top-0 left-0 w-full z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <a th:href="@{/clubs}" class="flex-shrink-0 flex items-center gap-2 text-decoration-none">
+                <i class="fa-solid fa-cubes text-emerald-400 text-2xl"></i>
+                <span class="font-bold text-xl tracking-wider text-emerald-400">HSF302<span class="text-white">_CLB</span></span>
+            </a>
+            <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-2">
+                    <a th:href="@{/clubs}"
+                       th:classappend="${#httpServletRequest != null and #httpServletRequest.requestURI == '/clubs'} ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'"
+                       class="px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fa-solid fa-list mr-1"></i> Danh sách
+                    </a>
+                    <a th:href="@{/clubs/new}"
+                       class="text-slate-300 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fa-solid fa-plus mr-1"></i> Thêm mới
+                    </a>
+                    <a th:href="@{/clubs/trash}"
+                       class="text-slate-300 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fa-solid fa-trash mr-1"></i> Thùng rác
+                    </a>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-slate-400 hidden sm:inline">Sinh viên FPT</span>
+                <div class="h-8 w-8 rounded-full bg-emerald-500 flex items-center justify-center text-slate-900 font-bold">F</div>
+            </div>
+        </div>
+    </div>
+</nav>
