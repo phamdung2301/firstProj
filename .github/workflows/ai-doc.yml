@@ -1,35 +1,43 @@
 name: Generate AI Readme
 on:
-  workflow_dispatch: # Chỉ chạy khi bấm nút
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4 # Đã nâng cấp lên v4
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # Đã nâng cấp lên v5
         with:
-          python-version: '3.11'
+          python-version: '3.12' # Dùng bản Python mới nhất
+
       - name: Install AI lib
         run: pip install google-genai
+
       - name: Run AI Script
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
           python -c "
-          import os
+          import os, sys
           from google import genai
-          client = genai.Client(api_key=os.environ['GOOGLE_API_KEY'])
-          # Chỉ liệt kê các file chính, bỏ qua thư mục rác .git, .idea, .mvn
-          content = 'Cấu trúc dự án: ' + os.popen('find . -maxdepth 3 -not -path \"*/.*\"').read()
-          response = client.models.generate_content(
-              model='gemini-2.5-flash-lite',
-              contents='Hãy viết file README.md chuyên nghiệp, định dạng Markdown cho dự án Java này. Chỉ cần tổng quan, công nghệ và cấu trúc chính: ' + content
-          )
-          with open('README.md', 'w', encoding='utf-8') as f:
-              f.write(response.text)
+          try:
+              client = genai.Client(api_key=os.environ['GOOGLE_API_KEY'])
+              content = 'Cấu trúc dự án: ' + os.popen('find . -maxdepth 2 -not -path \"*/.*\"').read()
+              response = client.models.generate_content(
+                  model='gemini-2.5-flash-lite',
+                  contents='Viết README chuyên nghiệp cho: ' + content
+              )
+              with open('README.md', 'w', encoding='utf-8') as f:
+                  f.write(response.text)
+          except Exception as e:
+              print(f'Lỗi không mong muốn: {e}')
+              sys.exit(1)
           "
+
       - name: Push new README
         run: |
           git config --global user.name 'github-actions[bot]'
