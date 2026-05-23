@@ -1,0 +1,39 @@
+name: Generate AI Readme
+on:
+  push:
+    branches: [ main ] # Chỉ chạy khi bạn push code lên nhánh main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install AI lib
+        run: pip install google-generativeai
+      - name: Run AI Script
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          python -c "
+          import os, google.generativeai as genai
+          genai.configure(api_key=os.environ['GOOGLE_API_KEY'])
+          model = genai.GenerativeModel('gemini-1.5-flash')
+          
+          # Đọc file để làm ngữ cảnh
+          content = 'Cấu trúc dự án này: ' + os.popen('ls -R').read()
+          response = model.generate_content('Hãy viết file README.md thật chuyên nghiệp dựa trên cấu trúc này: ' + content)
+          
+          with open('README.md', 'w', encoding='utf-8') as f:
+              f.write(response.text)
+          "
+      - name: Push new README
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add README.md
+          git commit -m 'Docs: Auto-generate README' || exit 0
+          git push
